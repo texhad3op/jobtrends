@@ -1,14 +1,15 @@
 import requests
 from lxml import html
 import pprint as pp
+import datetime
+import psycopg2
 
 
 def parsecvlt():
     host = 'http://www.cv.lt/'
     urls = geturls(host)
-    # pp.pprint(urls)
-    # for url in urls:
-    parsepage(urls[0])
+    for url in urls:
+        parsepage(url)
 
 
 def geturls(host):
@@ -29,9 +30,20 @@ def parsepage(url):
     hiringOrganization = tree.xpath('//div[@id="TablRes"]//tr//td//p//a[@itemprop="hiringOrganization"]//text()')
     jobLocation = tree.xpath('//div[@id="TablRes"]//tr//td//p//meta[@itemprop="jobLocation"]//@content')
     url = tree.xpath('//div[@id="TablRes"]//tr//td//p//meta[@itemprop="url"]//@content')
-    res = zip(jobtitle,hiringOrganization,jobLocation,url)
-    print jobtitle
-    print hiringOrganization
-    print jobLocation
-    print url
-    print res
+    res = zip(jobtitle, hiringOrganization, jobLocation, url)
+    conn = psycopg2.connect("dbname='jobtrends' user='postgres' host='localhost' password='postgres'")
+    cur = conn.cursor()
+    for a, b, c, d in res:
+        insertrecord(cur, a, b, c, d)
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
+def insertrecord(cur, a, b, c, d):
+    try:
+        cur.execute(
+            "INSERT INTO events (site, time, date, jobtitle, hiring_organisation, job_location, url) VALUES (%s,%s, %s, %s, %s, %s, %s)",
+            ('http://www.cv.lt/', datetime.datetime.now(), datetime.datetime.now(), a, b, c, d))
+    except ValueError:
+        print ValueError
