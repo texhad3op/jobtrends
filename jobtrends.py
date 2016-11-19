@@ -1,3 +1,3 @@
 import cvlt
 
-cvlt.parsecvlt()
+cvlt.parse_site()
