@@ -7,9 +7,9 @@ try:
 
     cur = conn.cursor()
 
-    cur.execute("SELECT id from city where name = %(name)s", {"name": 'Vilniuss'})
+    cur.execute("SELECT id from city where name = %(name)s", {"name": 'Vilnius'})
     rows = cur.fetchall()
-    print("ID = ", rows[0][0])
+    print "ID = ", rows[0][0]
     conn.close()
 
 except psycopg2.OperationalError:

@@ -18,7 +18,7 @@ try:
     #     ("fffff", datetime.datetime.now(), datetime.datetime.now(), "abcdef", "hhhhhhhh", "kkkkkkkkkkk", "vvvvvvvvvvvv"))
     # hundred = cur.fetchone()[0]
 
-    cur.execute("INSERT INTO city (name) VALUES ('%s') RETURNING id;" % ("fffff"))
+    cur.execute("INSERT INTO city (name) VALUES ('%s') RETURNING id;" % ("Viliniu''s"))
     hundred = cur.fetchone()[0]
 
     print hundred

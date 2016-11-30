@@ -4,6 +4,9 @@ drop sequence vacancy_id_seq;
 drop table city;
 drop sequence city_id_seq;
 
+drop table company;
+drop sequence company_id_seq;
+
 CREATE SEQUENCE city_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -19,6 +22,22 @@ CREATE TABLE city (
     name text
 );
 CREATE UNIQUE INDEX city_idx ON city (name);
+
+CREATE SEQUENCE company_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.company_id_seq OWNER TO postgres;
+
+CREATE TABLE company (
+    id bigint default nextval('company_id_seq') PRIMARY KEY,
+    name text
+);
+CREATE UNIQUE INDEX company_idx ON city (name);
 
 
 CREATE SEQUENCE vacancy_id_seq
@@ -39,10 +58,10 @@ CREATE TABLE vacancy (
     "time" timestamp without time zone,
     "date" date,
     jobtitle text,
-    hiring_organisation text,
-    job_location text,
+    company_id bigint,
     url text,
-    FOREIGN KEY (city_id) REFERENCES city (id)
+    FOREIGN KEY (city_id) REFERENCES city (id),
+    FOREIGN KEY (company_id) REFERENCES company (id)
 );
 
 ALTER TABLE public.vacancy OWNER TO postgres;
