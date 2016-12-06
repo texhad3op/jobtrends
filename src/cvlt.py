@@ -33,9 +33,9 @@ def parse_site():
     url_number = 1
     for url in urls:
         parse_page(url)
-        url_number += 1
         sys.stdout.write('\r')
         sys.stdout.write("Now parsing %d page of %d" % (url_number, len(urls)))
+        url_number += 1
     close_all()
 
 
@@ -44,10 +44,8 @@ def get_urls():
     tree = html.fromstring(page.content)
     pages = tree.xpath('//li[@class="has-sub last"]//ul//li//a/@href')
     urls = set()
-
     for uri in pages:
         urls.add(host + uri)
-
     urls = filter(lambda url: 'page' in url, urls)
     return urls
 

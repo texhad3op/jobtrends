@@ -3,6 +3,7 @@ from lxml import html
 import datetime
 import psycopg2
 import sys
+import pprint as pp
 
 
 host = 'http://www.cvbankas.lt/'
@@ -29,47 +30,54 @@ def close_all():
 
 def parse_site():
     # init()
-    print "ffffffffffff"
     urls = get_urls()
-    # print "Pages to parse %d" % len(urls)
-    # url_number = 1
+    print "Pages to parse %d" % len(urls)
+    url_number = 1
     # for url in urls:
-    #     parse_page(url)
-    #     url_number += 1
+    parse_page("http://www.cvbankas.lt/?page=1")
     #     sys.stdout.write('\r')
     #     sys.stdout.write("Now parsing %d page of %d" % (url_number, len(urls)))
-    # close_all()
+    #     url_number += 1
+    # # close_all()
 
 
 def get_urls():
     page = requests.get(host)
     tree = html.fromstring(page.content)
+    pa = tree.xpath('//ul[@class="pages_ul_inner"]//li//a/@href')
+    url_for_page = pa[1].split("=")[0]
     pages = tree.xpath('//ul[@class="pages_ul_inner"]//li//a/text()')
-
-    print len(pages)
-    print "================"
-    print min(pages)
-    print max(pages)
-
-    fff = range(int(min(pages)), 69)
-
-    print fff
+    pages_range = range(int(min(pages)), int(max(pages))+1)
     urls = set()
-
-    # for uri in pages:
-    #     print uri
-        # urls.add(host + uri)
-
-    urls = filter(lambda url: 'page' in url, urls)
+    for page in pages_range:
+        urls.add(url_for_page+"="+str(page))
     return urls
 
 
 def parse_page(url):
     page = requests.get(url)
     tree = html.fromstring(page.content)
-    # jobs = tree.xpath('//div[@id="TablRes"]//tr//td//p//a[@itemprop="title"]//text()')
-    # hiring_organizations = tree.xpath('//div[@id="TablRes"]//tr//td//p//a[@itemprop="hiringOrganization"]//text()')
-    # job_locations = tree.xpath('//div[@id="TablRes"]//tr//td//p//meta[@itemprop="jobLocation"]//@content')
+    jobs = tree.xpath('//div[@class="list_a_wrapper"]')
+    print jobs
+    print len(jobs)
+    print 'kkkkkkkkkkkkkkkkk'
+    pp.pprint(jobs[0])
+    jj = html.fromstring(jobs[0])
+    print jj.xpath('//div[@class="list_cell"]//h3[@class="list_h3"]//text()')
+    # print jobs[0][0][0].xpath('//h3[@class="list_h3"]//text()')
+    # print jobs[0].xpath('//h3[@class="list_h3"]//text()')
+
+    # hiring_organizations = tree.xpath('//span[@class="heading_secondary"]//text()')
+    # print hiring_organizations
+    # job_locations = tree.xpath('//span[@class="list_city"]//text()')
+    # print len(job_locations)
+    # res = zip(jobs, hiring_organizations)
+    # print res
+    # salaries = tree.xpath('//span[@class="jobadlist_salary"]//text()')
+    # print len(salaries)
+
+
+
     # urls = tree.xpath('//div[@id="TablRes"]//tr//td//p//meta[@itemprop="url"]//@content')
     # res = zip(jobs, hiring_organizations, job_locations, urls)
     # for job, hiring_organization, job_location, url in res:
