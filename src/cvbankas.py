@@ -4,6 +4,7 @@ import datetime
 import psycopg2
 import sys
 import pprint as pp
+import xml.etree.ElementTree as ET
 
 
 host = 'http://www.cvbankas.lt/'
@@ -43,6 +44,7 @@ def parse_site():
 
 def get_urls():
     page = requests.get(host)
+
     tree = html.fromstring(page.content)
     pa = tree.xpath('//ul[@class="pages_ul_inner"]//li//a/@href')
     url_for_page = pa[1].split("=")[0]
@@ -57,13 +59,33 @@ def get_urls():
 def parse_page(url):
     page = requests.get(url)
     tree = html.fromstring(page.content)
-    jobs = tree.xpath('//div[@class="list_a_wrapper"]')
+    jobs = tree.xpath('.//div[@class="list_a_wrapper"]')
     print jobs
     print len(jobs)
-    print 'kkkkkkkkkkkkkkkkk'
-    pp.pprint(jobs[0])
-    jj = html.fromstring(jobs[0])
-    print jj.xpath('//div[@class="list_cell"]//h3[@class="list_h3"]//text()')
+    print jobs[0]
+    xmlstr = ET.tostring(jobs[0], encoding='utf8', method='xml')
+    print xmlstr
+
+    tree2 = html.fromstring(xmlstr)
+    position = tree2.xpath('//div[@class="list_a_wrapper"]//div[@class="list_cell"]//h3[@class="list_h3"]//text()')
+    print position
+    company = tree2.xpath('//div[@class="list_a_wrapper"]//div[@class="list_cell"]//span[@class="heading_secondary"]//text()')
+    print company
+    city = tree2.xpath('//div[@class="list_a_wrapper"]//div[@class="list_cell list_ads_c_last"]//span[@class="txt_list_1"]//span[@class="list_city"]//text()')
+    print city
+
+    print '========================================'
+    xmlstr1 = ET.tostring(jobs[1], encoding='utf8', method='xml')
+    print xmlstr1
+    tree3 = html.fromstring(xmlstr1)
+    salary = tree3.xpath('//div[@class="list_a_wrapper"]//div[@class="list_cell"]//span[@class="heading_secondary"]//span[@class="jobadlist_salary"]//text()')
+    print salary
+
+
+    # print 'kkkkkkkkkkkkkkkkk'
+    # pp.pprint(jobs[0])
+    # jj = html.fromstring(jobs[0])
+    # print jj.xpath('//div[@class="list_cell"]//h3[@class="list_h3"]//text()')
     # print jobs[0][0][0].xpath('//h3[@class="list_h3"]//text()')
     # print jobs[0].xpath('//h3[@class="list_h3"]//text()')
 
