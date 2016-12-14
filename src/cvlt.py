@@ -73,10 +73,10 @@ def insert_record(job, hiring_organization, job_location, url):
         city_id = get_city_id(job_location)
         company_id = get_company_id(hiring_organization)
         cursor.execute(
-            "INSERT INTO vacancy (site, city_id, time, date, jobtitle, company_id, url)"
-            " VALUES (%s, %s, %s, %s, %s, %s, %s)",
+            "INSERT INTO vacancy (site, city_id, time, date, jobtitle, salary, company_id, url)"
+            " VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
             (
-                host, city_id, datetime.datetime.now(), datetime.datetime.now(), job, company_id,
+                host, city_id, datetime.datetime.now(), datetime.datetime.now(), job, '', company_id,
                 url))
     except ValueError:
         print(ValueError)

@@ -6,7 +6,6 @@ import sys
 import pprint as pp
 import xml.etree.ElementTree as ET
 
-
 host = 'http://www.cvbankas.lt/'
 connection = psycopg2.connect("dbname='jobtrends' user='postgres' host='localhost' password='postgres'")
 cursor = connection.cursor()
@@ -30,16 +29,16 @@ def close_all():
 
 
 def parse_site():
-    # init()
+    init()
     urls = get_urls()
     print "Pages to parse %d" % len(urls)
     url_number = 1
-    # for url in urls:
-    parse_page("http://www.cvbankas.lt/?page=1")
-    #     sys.stdout.write('\r')
-    #     sys.stdout.write("Now parsing %d page of %d" % (url_number, len(urls)))
-    #     url_number += 1
-    # # close_all()
+    for url in urls:
+        parse_page(url)
+        sys.stdout.write('\r')
+        sys.stdout.write("Now parsing %d page of %d" % (url_number, len(urls)))
+        url_number += 1
+    close_all()
 
 
 def get_urls():
@@ -49,69 +48,44 @@ def get_urls():
     pa = tree.xpath('//ul[@class="pages_ul_inner"]//li//a/@href')
     url_for_page = pa[1].split("=")[0]
     pages = tree.xpath('//ul[@class="pages_ul_inner"]//li//a/text()')
-    pages_range = range(int(min(pages)), int(max(pages))+1)
+    pages_range = range(int(min(pages)), int(max(pages)) + 1)
     urls = set()
     for page in pages_range:
-        urls.add(url_for_page+"="+str(page))
+        urls.add(url_for_page + "=" + str(page))
     return urls
 
 
-def parse_page(url):
-    page = requests.get(url)
+def parse_page(page_url):
+    page = requests.get(page_url)
     tree = html.fromstring(page.content)
-    jobs = tree.xpath('.//div[@class="list_a_wrapper"]')
-    print jobs
-    print len(jobs)
-    print jobs[0]
-    xmlstr = ET.tostring(jobs[0], encoding='utf8', method='xml')
-    print xmlstr
+    job_records = tree.xpath('.//div[@class="list_a_wrapper"]')
+    for job_record in job_records:
+        parse_single_record(job_record)
 
-    tree2 = html.fromstring(xmlstr)
-    position = tree2.xpath('//div[@class="list_a_wrapper"]//div[@class="list_cell"]//h3[@class="list_h3"]//text()')
+
+def parse_single_record(record):
+    xml_str = ET.tostring(record, encoding='utf8', method='xml')
+    tree = html.fromstring(xml_str)
+    position = tree.xpath('//div[@class="list_a_wrapper"]//div[@class="list_cell"]//h3[@class="list_h3"]//text()')
     print position
-    company = tree2.xpath('//div[@class="list_a_wrapper"]//div[@class="list_cell"]//span[@class="heading_secondary"]//text()')
+    company = tree.xpath('//div[@class="list_a_wrapper"]//div[@class="list_cell list_logo_c"]//img//@alt')
     print company
-    city = tree2.xpath('//div[@class="list_a_wrapper"]//div[@class="list_cell list_ads_c_last"]//span[@class="txt_list_1"]//span[@class="list_city"]//text()')
+    city = tree.xpath(
+        '//div[@class="list_a_wrapper"]//div[@class="list_cell list_ads_c_last"]//span[@class="txt_list_1"]//span[@class="list_city"]//text()')
     print city
-
-    print '========================================'
-    xmlstr1 = ET.tostring(jobs[1], encoding='utf8', method='xml')
-    print xmlstr1
-    tree3 = html.fromstring(xmlstr1)
-    salary = tree3.xpath('//div[@class="list_a_wrapper"]//div[@class="list_cell"]//span[@class="heading_secondary"]//span[@class="jobadlist_salary"]//text()')
+    salary = tree.xpath(
+        '//div[@class="list_a_wrapper"]//div[@class="list_cell"]//span[@class="heading_secondary"]//span[@class="jobadlist_salary"]//text()')
     print salary
+    print '========================================'
+    process_record(position, company, city, '')
 
 
-    # print 'kkkkkkkkkkkkkkkkk'
-    # pp.pprint(jobs[0])
-    # jj = html.fromstring(jobs[0])
-    # print jj.xpath('//div[@class="list_cell"]//h3[@class="list_h3"]//text()')
-    # print jobs[0][0][0].xpath('//h3[@class="list_h3"]//text()')
-    # print jobs[0].xpath('//h3[@class="list_h3"]//text()')
-
-    # hiring_organizations = tree.xpath('//span[@class="heading_secondary"]//text()')
-    # print hiring_organizations
-    # job_locations = tree.xpath('//span[@class="list_city"]//text()')
-    # print len(job_locations)
-    # res = zip(jobs, hiring_organizations)
-    # print res
-    # salaries = tree.xpath('//span[@class="jobadlist_salary"]//text()')
-    # print len(salaries)
+def process_record(job, hiring_organization, job_location, url):
+    cities = job_location.split(",")
+    for city in cities:
+        insert_record(job, hiring_organization, city.strip(), url)
 
 
-
-    # urls = tree.xpath('//div[@id="TablRes"]//tr//td//p//meta[@itemprop="url"]//@content')
-    # res = zip(jobs, hiring_organizations, job_locations, urls)
-    # for job, hiring_organization, job_location, url in res:
-    #     process_record(job, hiring_organization, job_location, url)
-
-
-# def process_record(job, hiring_organization, job_location, url):
-#     cities = job_location.split(",")
-#     for city in cities:
-#         insert_record(job, hiring_organization, city.strip(), url)
-#
-#
 # def insert_record(job, hiring_organization, job_location, url):
 #     try:
 #         city_id = get_city_id(job_location)

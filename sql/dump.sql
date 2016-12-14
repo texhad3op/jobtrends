@@ -58,6 +58,7 @@ CREATE TABLE vacancy (
     "time" timestamp without time zone,
     "date" date,
     jobtitle text,
+    salary text,
     company_id bigint,
     url text,
     FOREIGN KEY (city_id) REFERENCES city (id),
