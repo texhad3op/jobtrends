@@ -77,45 +77,46 @@ def parse_single_record(record):
         '//div[@class="list_a_wrapper"]//div[@class="list_cell"]//span[@class="heading_secondary"]//span[@class="jobadlist_salary"]//text()')
     print salary
     print '========================================'
-    process_record(position, company, city, '')
+    process_record(position, company, city)
 
 
-def process_record(job, hiring_organization, job_location, url):
+def process_record(job, hiring_organization, job_location):
     cities = job_location.split(",")
     for city in cities:
-        insert_record(job, hiring_organization, city.strip(), url)
+        insert_record(job, hiring_organization, city.strip())
 
 
-# def insert_record(job, hiring_organization, job_location, url):
-#     try:
-#         city_id = get_city_id(job_location)
-#         company_id = get_company_id(hiring_organization)
-#         cursor.execute(
-#             "INSERT INTO vacancy (site, city_id, time, date, jobtitle, company_id, url)"
-#             " VALUES (%s, %s, %s, %s, %s, %s, %s)",
-#             (
-#                 host, city_id, datetime.datetime.now(), datetime.datetime.now(), job, company_id,
-#                 url))
-#     except ValueError:
-#         print(ValueError)
-#
-#
-# def get_city_id(job_location):
-#     try:
-#         cursor.execute("SELECT id from city where name = %(name)s", {"name": escape_special_characters(job_location)})
-#         rows = cursor.fetchall()
-#         id_old = rows[0][0]
-#         return id_old
-#     except psycopg2.OperationalError:
-#         print psycopg2.OperationalError
-#     except IndexError:
-#         print job_location, escape_special_characters(job_location)
-#         cursor.execute(
-#             "INSERT INTO city (name) VALUES ('%s') RETURNING id;" % escape_special_characters(job_location))
-#         id_new = cursor.fetchone()[0]
-#         return id_new
-#
-#
+def insert_record(job, hiring_organization, job_location):
+    try:
+        city_id = get_city_id(job_location)
+        company_id = get_company_id(hiring_organization)
+        cursor.execute(
+            "INSERT INTO vacancy (site, city_id, time, date, jobtitle, company_id)"
+            " VALUES (%s, %s, %s, %s, %s, %s)",
+            (
+                host, city_id, datetime.datetime.now(), datetime.datetime.now(), job, company_id))
+    except ValueError:
+        print(ValueError)
+
+
+def get_city_id(job_location):
+    try:
+        cityp = escape_special_characters(job_location)
+        city = cityp[0:4]+'%'
+        cursor.execute("SELECT id from city where name = %(name)s", {"name": city})
+        rows = cursor.fetchall()
+        id_old = rows[0][0]
+        return id_old
+    except psycopg2.OperationalError:
+        print psycopg2.OperationalError
+    except IndexError:
+        print job_location, escape_special_characters(job_location)
+        cursor.execute(
+            "INSERT INTO city (name) VALUES ('%s') RETURNING id;" % escape_special_characters(job_location))
+        id_new = cursor.fetchone()[0]
+        return id_new
+
+
 # def get_company_id(hiring_organization):
 #     try:
 #         cursor.execute("SELECT id from company where name = %(name)s",
@@ -131,6 +132,6 @@ def process_record(job, hiring_organization, job_location, url):
 #         id_new = cursor.fetchone()[0]
 #         return id_new
 #
-#
-# def escape_special_characters(string):
-#     return string.replace("'", "''").replace("\"", "\"")
+
+def escape_special_characters(string):
+    return string.replace("'", "''").replace("\"", "\"")

@@ -60,7 +60,6 @@ CREATE TABLE vacancy (
     jobtitle text,
     salary text,
     company_id bigint,
-    url text,
     FOREIGN KEY (city_id) REFERENCES city (id),
     FOREIGN KEY (company_id) REFERENCES company (id)
 );
@@ -68,11 +67,64 @@ CREATE TABLE vacancy (
 ALTER TABLE public.vacancy OWNER TO postgres;
 
 
-
-
-select * from vacancy;
-
-
-select job_location, count(job_location) from vacancy group by job_location order by count(job_location) desc;
-
-select jobtitle, count(jobtitle) from vacancy group by jobtitle order by count(jobtitle) desc;
+INSERT INTO public.city(id, name) VALUES ('1','Kitas');
+INSERT INTO public.city(id, name) VALUES ('2','Vilnius');
+INSERT INTO public.city(id, name) VALUES ('3','Telšiai');
+INSERT INTO public.city(id, name) VALUES ('4','Pagėgiai');
+INSERT INTO public.city(id, name) VALUES ('5','Kaunas');
+INSERT INTO public.city(id, name) VALUES ('6','Kėdainiai');
+INSERT INTO public.city(id, name) VALUES ('7','Plungė');
+INSERT INTO public.city(id, name) VALUES ('8','Mažeikiai');
+INSERT INTO public.city(id, name) VALUES ('9','Šiauliai');
+INSERT INTO public.city(id, name) VALUES ('10','Radviliškis');
+INSERT INTO public.city(id, name) VALUES ('11','Tauragė');
+INSERT INTO public.city(id, name) VALUES ('12','Palanga');
+INSERT INTO public.city(id, name) VALUES ('13','Klaipėda');
+INSERT INTO public.city(id, name) VALUES ('14','Panevėžys');
+INSERT INTO public.city(id, name) VALUES ('15','Vievis');
+INSERT INTO public.city(id, name) VALUES ('16','Prienai');
+INSERT INTO public.city(id, name) VALUES ('17','Vilkaviškis');
+INSERT INTO public.city(id, name) VALUES ('18','Visaginas');
+INSERT INTO public.city(id, name) VALUES ('19','Birštonas');
+INSERT INTO public.city(id, name) VALUES ('20','Molėtai');
+INSERT INTO public.city(id, name) VALUES ('21','Raseiniai');
+INSERT INTO public.city(id, name) VALUES ('22','Naujoji Akmenė');
+INSERT INTO public.city(id, name) VALUES ('23','Šilutė');
+INSERT INTO public.city(id, name) VALUES ('24','Marijampolė');
+INSERT INTO public.city(id, name) VALUES ('25','Varėna');
+INSERT INTO public.city(id, name) VALUES ('26','Lazdijai');
+INSERT INTO public.city(id, name) VALUES ('27','Utena');
+INSERT INTO public.city(id, name) VALUES ('28','Kuršėnai');
+INSERT INTO public.city(id, name) VALUES ('29','Druskininkai');
+INSERT INTO public.city(id, name) VALUES ('30','Kalvarija');
+INSERT INTO public.city(id, name) VALUES ('31','Jurbarkas');
+INSERT INTO public.city(id, name) VALUES ('32','Šakiai');
+INSERT INTO public.city(id, name) VALUES ('33','Šilalė');
+INSERT INTO public.city(id, name) VALUES ('34','Ukmergė');
+INSERT INTO public.city(id, name) VALUES ('35','Jonava');
+INSERT INTO public.city(id, name) VALUES ('36','Ignalina');
+INSERT INTO public.city(id, name) VALUES ('37','Gargždai');
+INSERT INTO public.city(id, name) VALUES ('38','Anykščiai');
+INSERT INTO public.city(id, name) VALUES ('39','Kaišiadorys');
+INSERT INTO public.city(id, name) VALUES ('40','Alytus');
+INSERT INTO public.city(id, name) VALUES ('41','Pakruojis');
+INSERT INTO public.city(id, name) VALUES ('42','Elektrėnai');
+INSERT INTO public.city(id, name) VALUES ('43','Skuodas');
+INSERT INTO public.city(id, name) VALUES ('44','Kupiškis');
+INSERT INTO public.city(id, name) VALUES ('45','Kretinga');
+INSERT INTO public.city(id, name) VALUES ('46','Joniškis');
+INSERT INTO public.city(id, name) VALUES ('47','Biržai');
+INSERT INTO public.city(id, name) VALUES ('48','Šalčininkai');
+INSERT INTO public.city(id, name) VALUES ('49','Lentvaris');
+INSERT INTO public.city(id, name) VALUES ('50','Trakai');
+INSERT INTO public.city(id, name) VALUES ('51','Švenčionys');
+INSERT INTO public.city(id, name) VALUES ('52','Širvintos');
+INSERT INTO public.city(id, name) VALUES ('53','Pasvalys');
+INSERT INTO public.city(id, name) VALUES ('54','Zarasai');
+INSERT INTO public.city(id, name) VALUES ('55','Bet kuris miestas');
+INSERT INTO public.city(id, name) VALUES ('56','Užsienyje');
+INSERT INTO public.city(id, name) VALUES ('57','Rokiškis');
+INSERT INTO public.city(id, name) VALUES ('58','Kazlų Rūda');
+INSERT INTO public.city(id, name) VALUES ('59','Kelmė');
+INSERT INTO public.city(id, name) VALUES ('60','Rietavas');
+INSERT INTO public.city(id, name) VALUES ('61','Neringa');

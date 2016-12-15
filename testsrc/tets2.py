@@ -1,8 +1,12 @@
 import sys
 import time
 
-sys.stdout.write("installing xxx")
-time.sleep(2)
-sys.stdout.write('\r')
-time.sleep(2)
-sys.stdout.write("iaaaaaaaaaaa")
+# sys.stdout.write("installing xxx")
+# time.sleep(2)
+# sys.stdout.write('\r')
+# time.sleep(2)
+# sys.stdout.write("iaaaaaaaaaaa")
+
+s = "abcdefght"
+
+print s[0:4]

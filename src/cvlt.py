@@ -56,28 +56,27 @@ def parse_page(url):
     jobs = tree.xpath('//div[@id="TablRes"]//tr//td//p//a[@itemprop="title"]//text()')
     hiring_organizations = tree.xpath('//div[@id="TablRes"]//tr//td//p//a[@itemprop="hiringOrganization"]//text()')
     job_locations = tree.xpath('//div[@id="TablRes"]//tr//td//p//meta[@itemprop="jobLocation"]//@content')
-    urls = tree.xpath('//div[@id="TablRes"]//tr//td//p//meta[@itemprop="url"]//@content')
-    res = zip(jobs, hiring_organizations, job_locations, urls)
-    for job, hiring_organization, job_location, url in res:
-        process_record(job, hiring_organization, job_location, url)
+    res = zip(jobs, hiring_organizations, job_locations)
+    for job, hiring_organization, job_location in res:
+        process_record(job, hiring_organization, job_location)
 
 
-def process_record(job, hiring_organization, job_location, url):
+def process_record(job, hiring_organization, job_location):
     cities = job_location.split(",")
     for city in cities:
-        insert_record(job, hiring_organization, city.strip(), url)
+        insert_record(job, hiring_organization, city.strip())
 
 
-def insert_record(job, hiring_organization, job_location, url):
+def insert_record(job, hiring_organization, job_location):
     try:
         city_id = get_city_id(job_location)
         company_id = get_company_id(hiring_organization)
         cursor.execute(
-            "INSERT INTO vacancy (site, city_id, time, date, jobtitle, salary, company_id, url)"
-            " VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+            "INSERT INTO vacancy (site, city_id, time, date, jobtitle, salary, company_id)"
+            " VALUES (%s, %s, %s, %s, %s, %s, %s)",
             (
-                host, city_id, datetime.datetime.now(), datetime.datetime.now(), job, '', company_id,
-                url))
+                host, city_id, datetime.datetime.now(), datetime.datetime.now(), job, '', company_id
+                ))
     except ValueError:
         print(ValueError)
 
@@ -91,7 +90,6 @@ def get_city_id(job_location):
     except psycopg2.OperationalError:
         print psycopg2.OperationalError
     except IndexError:
-        print job_location, escape_special_characters(job_location)
         cursor.execute(
             "INSERT INTO city (name) VALUES ('%s') RETURNING id;" % escape_special_characters(job_location))
         id_new = cursor.fetchone()[0]
