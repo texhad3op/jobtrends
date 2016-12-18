@@ -8,7 +8,7 @@ drop table company;
 drop sequence company_id_seq;
 
 CREATE SEQUENCE city_id_seq
-    START WITH 1
+    START WITH 62
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE

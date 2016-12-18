@@ -6,11 +6,12 @@ try:
     print "Opened database successfully"
 
     cur = conn.cursor()
-    city = 'Vi%'
-    cur.execute("SELECT name from city where name ilike %(name)s", {"name": city})
+    cityp = "Kaunas"
+    city = cityp[0:4] + '%'
+    cur.execute("SELECT id from city where name ilike %(name)s", {"name": city})
     rows = cur.fetchall()
-    for row in rows:
-        print "ID = ", row[0]
+    # for row in rows:
+    print "ID = ", rows[0][0]
     conn.close()
 
 except psycopg2.OperationalError:
