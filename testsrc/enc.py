@@ -1,2 +1,2 @@
-ddd = "KlaipÄdoje"
-print ddd.encoding("ascii")
+ddd = unicode("Panevezyje")
+print len(ddd)

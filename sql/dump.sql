@@ -59,6 +59,7 @@ CREATE TABLE vacancy (
     "date" date,
     jobtitle text,
     salary text,
+    url text,
     company_id bigint,
     FOREIGN KEY (city_id) REFERENCES city (id),
     FOREIGN KEY (company_id) REFERENCES company (id)

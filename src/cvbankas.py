@@ -1,11 +1,10 @@
-import requests
-from lxml import html
+import codecs
 import datetime
 import psycopg2
+import requests
 import sys
-import pprint as pp
 import xml.etree.ElementTree as ET
-import codecs
+from lxml import html
 
 host = 'http://www.cvbankas.lt/'
 connection = psycopg2.connect("dbname='jobtrends' user='postgres' host='localhost' password='postgres'")
@@ -59,7 +58,11 @@ def get_urls():
 def parse_page(page_url):
     page = requests.get(page_url)
     tree = html.fromstring(page.content)
-    job_records = tree.xpath('.//div[@class="list_a_wrapper"]')
+    # job_records = tree.xpath('.//div[@class="list_a_wrapper"]')
+    job_records = tree.xpath('.//a[@class="list_a can_visited"]')
+    # print job_records
+    # print  hrefs
+    # exit()
     for job_record in job_records:
         parse_single_record(job_record)
 
@@ -68,31 +71,30 @@ def parse_single_record(record):
     xml_str = ET.tostring(record, encoding='utf8', method='xml')
     tree = html.fromstring(xml_str)
     positions = tree.xpath('//div[@class="list_a_wrapper"]//div[@class="list_cell"]//h3[@class="list_h3"]//text()')
-    # print positions
     companies = tree.xpath('//div[@class="list_a_wrapper"]//div[@class="list_cell list_logo_c"]//img//@alt')
-    # print companies
     cities = tree.xpath(
         '//div[@class="list_a_wrapper"]//div[@class="list_cell list_ads_c_last"]//span[@class="txt_list_1"]//span[@class="list_city"]//text()')
-    # print cities
     salaries = tree.xpath(
         '//div[@class="list_a_wrapper"]//div[@class="list_cell"]//span[@class="heading_secondary"]//span[@class="jobadlist_salary"]//text()')
-    # print salaries
-    # print '========================================'
-    insert_record(set_value_aware(positions), set_value_aware(companies), set_value_aware(cities), set_value_aware(salaries))
+    urls = tree.xpath('//a[@class="list_a can_visited"]//@href')
+    insert_record(set_value_aware(positions), set_value_aware(companies), set_value_aware(cities),
+                  set_value_aware(salaries), set_value_aware(urls))
 
 
-def insert_record(job, hiring_organization, job_location, salary):
+def insert_record(job, hiring_organization, job_location, salary, url):
+    # print job,"====",hiring_organization,"====", job_location,"====", salary,"====", url
     try:
-        print codecs.encode(job, '8859', 'strict'), codecs.encode(hiring_organization, '8859', 'strict'), codecs.encode(job_location, '8859', 'strict'), codecs.encode(salary, '8859', 'strict')
         city_id = get_city_id(job_location)
         company_id = get_company_id(hiring_organization)
         cursor.execute(
-            "INSERT INTO vacancy (site, city_id, time, date, jobtitle, salary, company_id)"
-            " VALUES (%s, %s, %s, %s, %s, %s, %s)",
+            "INSERT INTO vacancy (site, city_id, time, date, jobtitle, salary, url, company_id)"
+            " VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
             (
-                host, city_id, datetime.datetime.now(), datetime.datetime.now(), unicode(job), unicode(salary), company_id))
+                host, city_id, datetime.datetime.now(), datetime.datetime.now(), codecs.encode(job, '8859', 'strict'),
+                codecs.encode(salary, '8859', 'strict'), url ,
+                company_id))
     except ValueError:
-        print(ValueError)
+        pass
 
 
 def set_value_aware(val):
@@ -104,9 +106,8 @@ def set_value_aware(val):
 
 def get_city_id(job_location):
     try:
-        cityp = escape_special_characters(job_location)
-        city = cityp[0:4] + '%'
-        cursor.execute("SELECT id from city where name ilike %(name)s", {"name": city})
+        city = codecs.encode(job_location, '8859', 'strict')
+        cursor.execute("SELECT id from city where name ilike substring(%(name)s for 4)||'%%'", {"name": city})
         rows = cursor.fetchall()
         id_old = rows[0][0]
         return id_old
@@ -114,15 +115,17 @@ def get_city_id(job_location):
         print psycopg2.OperationalError
     except IndexError:
         cursor.execute(
-            "INSERT INTO city (name) VALUES ('%s') RETURNING id;" % escape_special_characters(unicode(job_location)))
+            "INSERT INTO city (name) VALUES (%(name)s) RETURNING id;",
+            {"name": city})
         id_new = cursor.fetchone()[0]
         return id_new
 
 
 def get_company_id(hiring_organization):
     try:
+        organization = codecs.encode(hiring_organization, '1257', 'strict')
         cursor.execute("SELECT id from company where name = %(name)s",
-                       {"name": escape_special_characters(hiring_organization)})
+                       {"name": escape_special_characters(organization)})
         rows = cursor.fetchall()
         id_old = rows[0][0]
         return id_old
@@ -130,7 +133,8 @@ def get_company_id(hiring_organization):
         print psycopg2.OperationalError
     except IndexError:
         cursor.execute(
-            "INSERT INTO company (name) VALUES ('%s') RETURNING id;" % escape_special_characters(hiring_organization))
+            "INSERT INTO company (name) VALUES (%(name)s) RETURNING id;", {
+                "name": organization})
         id_new = cursor.fetchone()[0]
         return id_new
 
