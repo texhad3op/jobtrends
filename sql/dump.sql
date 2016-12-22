@@ -7,6 +7,26 @@ drop sequence city_id_seq;
 drop table company;
 drop sequence company_id_seq;
 
+drop table site;
+drop sequence site_id_seq;
+
+CREATE SEQUENCE site_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+CREATE TABLE site (
+    id bigint default nextval('site_id_seq') PRIMARY KEY,
+    name text
+);
+CREATE UNIQUE INDEX city_idx ON site (name);
+
+INSERT INTO public.site(id, name) VALUES ('1','http://www.cv.lt/');
+INSERT INTO public.site(id, name) VALUES ('2','http://www.cvbankas.lt/');
+
 CREATE SEQUENCE city_id_seq
     START WITH 62
     INCREMENT BY 1
@@ -15,13 +35,11 @@ CREATE SEQUENCE city_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.city_id_seq OWNER TO postgres;
-
 CREATE TABLE city (
     id bigint default nextval('city_id_seq') PRIMARY KEY,
     name text
 );
-CREATE UNIQUE INDEX city_idx ON city (name);
+CREATE UNIQUE INDEX site_idx ON city (name);
 
 CREATE SEQUENCE company_id_seq
     START WITH 1
@@ -54,7 +72,7 @@ ALTER TABLE public.vacancy_id_seq OWNER TO postgres;
 CREATE TABLE vacancy (
     id bigint default nextval('vacancy_id_seq') PRIMARY KEY,
     city_id bigint,
-    site text,
+    site bigint,
     "time" timestamp without time zone,
     "date" date,
     jobtitle text,

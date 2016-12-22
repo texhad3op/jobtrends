@@ -6,9 +6,9 @@ import sys
 import xml.etree.ElementTree as ET
 from lxml import html
 
-host = 'http://www.cvbankas.lt/'
 connection = psycopg2.connect("dbname='jobtrends' user='postgres' host='localhost' password='postgres'")
 cursor = connection.cursor()
+host = 'http://www.cvbankas.lt/'
 
 
 def init():
@@ -42,6 +42,7 @@ def parse_site():
 
 
 def get_urls():
+    global host
     page = requests.get(host)
 
     tree = html.fromstring(page.content)
@@ -90,8 +91,8 @@ def insert_record(job, hiring_organization, job_location, salary, url):
             "INSERT INTO vacancy (site, city_id, time, date, jobtitle, salary, url, company_id)"
             " VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
             (
-                host, city_id, datetime.datetime.now(), datetime.datetime.now(), codecs.encode(job, '8859', 'strict'),
-                codecs.encode(salary, '8859', 'strict'), url ,
+                2, city_id, datetime.datetime.now(), datetime.datetime.now(), codecs.encode(job, '8859', 'strict'),
+                codecs.encode(salary, '8859', 'strict'), url,
                 company_id))
     except ValueError:
         pass

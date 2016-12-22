@@ -4,9 +4,9 @@ import datetime
 import psycopg2
 import sys
 
-host = 'http://www.cv.lt/'
 connection = psycopg2.connect("dbname='jobtrends' user='postgres' host='localhost' password='postgres'")
 cursor = connection.cursor()
+host = 'http://www.cv.lt/'
 
 
 def init():
@@ -56,27 +56,28 @@ def parse_page(url):
     jobs = tree.xpath('//div[@id="TablRes"]//tr//td//p//a[@itemprop="title"]//text()')
     hiring_organizations = tree.xpath('//div[@id="TablRes"]//tr//td//p//a[@itemprop="hiringOrganization"]//text()')
     job_locations = tree.xpath('//div[@id="TablRes"]//tr//td//p//meta[@itemprop="jobLocation"]//@content')
-    res = zip(jobs, hiring_organizations, job_locations)
-    for job, hiring_organization, job_location in res:
-        process_record(job, hiring_organization, job_location)
+    urls = tree.xpath('//div[@id="TablRes"]//tr//td//p//meta[@itemprop="url"]//@content')
+    res = zip(jobs, hiring_organizations, job_locations, urls)
+    for job, hiring_organization, job_location, url in res:
+        process_record(job, hiring_organization, job_location, url)
 
 
-def process_record(job, hiring_organization, job_location):
+def process_record(job, hiring_organization, job_location, url):
     cities = job_location.split(",")
     for city in cities:
-        insert_record(job, hiring_organization, city.strip())
+        insert_record(job, hiring_organization, city.strip(), url)
 
 
-def insert_record(job, hiring_organization, job_location):
+def insert_record(job, hiring_organization, job_location, url):
     try:
         city_id = get_city_id(job_location)
         company_id = get_company_id(hiring_organization)
         cursor.execute(
-            "INSERT INTO vacancy (site, city_id, time, date, jobtitle, salary, company_id)"
-            " VALUES (%s, %s, %s, %s, %s, %s, %s)",
+            "INSERT INTO vacancy (site, city_id, time, date, jobtitle, salary, url, company_id)"
+            " VALUES (%s, %s, %s, %s, %s, %s ,%s ,%s)",
             (
-                host, city_id, datetime.datetime.now(), datetime.datetime.now(), job, '', company_id
-                ))
+                1, city_id, datetime.datetime.now(), datetime.datetime.now(), job, '', url, company_id
+            ))
     except ValueError:
         print(ValueError)
 
