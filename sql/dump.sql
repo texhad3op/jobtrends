@@ -26,6 +26,7 @@ CREATE UNIQUE INDEX city_idx ON site (name);
 
 INSERT INTO public.site(id, name) VALUES ('1','http://www.cv.lt/');
 INSERT INTO public.site(id, name) VALUES ('2','http://www.cvbankas.lt/');
+INSERT INTO public.site(id, name) VALUES ('2','http://www.cvmarket.lt/');
 
 CREATE SEQUENCE city_id_seq
     START WITH 62
